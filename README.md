@@ -1,39 +1,73 @@
-<!--
-This README describes the package. If you publish this package to pub.dev,
-this README's contents appear on the landing page for your package.
+# Animated Notification
 
-For information about how to write a good package README, see the guide for
-[writing package pages](https://dart.dev/tools/pub/writing-package-pages).
-
-For general information about developing packages, see the Dart guide for
-[creating packages](https://dart.dev/guides/libraries/create-packages)
-and the Flutter guide for
-[developing packages and plugins](https://flutter.dev/to/develop-packages).
--->
-
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+A customizable Flutter package for displaying animated, dismissible in-app notifications.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+- **Customizable:** Easily change message, duration, type (info, success, warning, error), icon, and more.
+- **Animated:** Smooth slide, fade, and scale animations for a modern look.
+- **Dismissible:** Users can dismiss notifications manually or they can auto-dismiss after a set duration.
+- **Actionable:** Include an optional action button with a custom label and callback.
+- **Progress Bar:** Display a linear progress bar indicating the remaining display time.
+- **Singleton Service:** A `NotificationService` singleton ensures only one notification is shown at a time, managing the overlay.
 
 ## Getting started
 
-TODO: List prerequisites and provide or point to information on how to
-start using the package.
+1. Add the package to your `pubspec.yaml`:
+
+```yaml
+dependencies:
+  animated_notification:
+    git:
+      url: https://github.com/Mahmoud-Saeed-Mahmoud/animated_notification.git
+      ref: main # Or the branch/tag you want to use
+```
+
+2. Run `flutter pub get`.
 
 ## Usage
 
-TODO: Include short and useful examples for package users. Add longer examples
-to `/example` folder.
+Import the package:
 
 ```dart
-const like = 'sample';
+import 'package:animated_notification/animated_notification.dart';
 ```
 
-## Additional information
+To show a notification, use the `NotificationService` singleton:
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+```dart
+NotificationService().show(
+  context,
+  message: 'This is an info notification!',
+  type: NotificationType.info,
+  duration: const Duration(seconds: 3), // Optional: defaults to 3 seconds
+  onTap: () {
+    // Optional: callback when notification is tapped
+    print('Notification tapped!');
+  },
+  icon: const Icon(Icons.info_outline), // Optional: custom icon
+  showProgressBar: true, // Optional: defaults to true
+  actionLabel: 'View',
+  onActionPressed: () {
+    // Optional: callback for action button
+    print('Action button pressed!');
+  },
+  dismissible: true, // Optional: defaults to true
+);
+```
+
+To dismiss the current notification manually:
+
+```dart
+NotificationService().dismiss();
+```
+
+For more detailed examples, refer to the `/example` folder in the repository.
+
+## Demo
+
+[Video Demo Coming Soon!]
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
