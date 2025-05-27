@@ -66,7 +66,7 @@ For more detailed examples, refer to the `/example` folder in the repository.
 
 ## Demo
 
-[Video Demo Coming Soon!]
+<video src="preview.mp4" width="320" controls></video>
 
 ## License
 
