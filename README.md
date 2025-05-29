@@ -20,7 +20,7 @@ dependencies:
   animated_notification:
     git:
       url: https://github.com/Mahmoud-Saeed-Mahmoud/animated_notification.git
-      ref: main # Or the branch/tag you want to use
+      ref: main # Or the branch/commit/tag you want to use
 ```
 
 2. Run `flutter pub get`.
@@ -66,7 +66,7 @@ For more detailed examples, refer to the `/example` folder in the repository.
 
 ## Demo
 
-<video src="preview.mp4" width="320" controls></video>
+<img src="preview.gif" alt="Animated Notification" width="300"/>
 
 ## License
 
