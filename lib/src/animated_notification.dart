@@ -9,7 +9,28 @@ import 'package:flutter/foundation.dart'
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show StringProperty;
 
+/// A widget that displays an animated notification message with various customization options.
+///
+/// The notification appears with a sliding animation from the top of the screen and can include:
+/// - A custom message
+/// - An icon (default or custom)
+/// - A progress bar showing the remaining time
+/// - An action button
+/// - A dismiss button
+///
+/// The notification can be dismissed by:
+/// - Tapping on it (if [onTap] is not provided)
+/// - Swiping horizontally
+/// - Tapping the close button (if [dismissible] is true)
+/// - Automatically after [duration] (if not set to Duration.zero)
 class AnimatedNotification extends StatefulWidget {
+  /// Creates an animated notification widget.
+  ///
+  /// The [message] parameter is required and specifies the text to display.
+  /// [duration] defaults to 3 seconds and controls how long the notification is shown.
+  /// [type] determines the color scheme and default icon (defaults to info).
+  /// [showProgressBar] controls the visibility of the progress indicator.
+  /// [dismissible] determines if the notification can be manually dismissed.
   const AnimatedNotification({
     required this.message,
     super.key,
@@ -22,14 +43,32 @@ class AnimatedNotification extends StatefulWidget {
     this.onActionPressed,
     this.dismissible = true,
   });
+
+  /// The message text to display in the notification
   final String message;
+
+  /// How long the notification should remain visible
   final Duration duration;
+
+  /// The type of notification which determines its color and icon
   final NotificationType type;
+
+  /// Callback function when the notification is tapped
   final VoidCallback? onTap;
+
+  /// Custom icon widget to override the default icon
   final Widget? icon;
+
+  /// Whether to show the progress bar indicating remaining time
   final bool showProgressBar;
+
+  /// Label text for the action button
   final String? actionLabel;
+
+  /// Callback function when the action button is pressed
   final VoidCallback? onActionPressed;
+
+  /// Whether the notification can be dismissed manually
   final bool dismissible;
 
   @override
@@ -51,14 +90,27 @@ class AnimatedNotification extends StatefulWidget {
   }
 }
 
-// Enhanced notification service
+/// A singleton service class that manages the display of notifications.
+///
+/// This service ensures only one notification is shown at a time and handles
+/// the proper cleanup of previous notifications before showing new ones.
 class NotificationService {
+  /// Factory constructor that returns the singleton instance
   factory NotificationService() => _instance;
+
+  /// Private constructor for singleton pattern
   NotificationService._internal();
+
+  /// Singleton instance
   static final NotificationService _instance = NotificationService._internal();
+
+  /// Current overlay entry for the active notification
   OverlayEntry? _currentEntry;
+
+  /// Timer that controls automatic dismissal
   Timer? _timer;
 
+  /// Dismisses the currently showing notification if any
   void dismiss() {
     _currentEntry?.remove();
     _currentEntry = null;
@@ -66,6 +118,11 @@ class NotificationService {
     _timer = null;
   }
 
+  /// Shows a new notification with the specified parameters
+  ///
+  /// If a notification is already showing, it will be dismissed first.
+  /// The notification will be positioned at the top of the screen with proper
+  /// safe area padding.
   void show(
     final BuildContext context, {
     required final String message,
@@ -78,6 +135,7 @@ class NotificationService {
     final VoidCallback? onActionPressed,
     final bool dismissible = true,
   }) {
+    // Remove existing notification if any
     _currentEntry?.remove();
     _timer?.cancel();
 
@@ -104,6 +162,7 @@ class NotificationService {
 
     overlay.insert(_currentEntry!);
 
+    // Set up auto-dismiss timer if duration is not zero
     if (duration != Duration.zero) {
       _timer = Timer(duration + const Duration(milliseconds: 600), () {
         _currentEntry?.remove();
@@ -113,15 +172,41 @@ class NotificationService {
   }
 }
 
-enum NotificationType { success, error, warning, info }
+/// Defines the different types of notifications available
+///
+/// Each type has its own color scheme and default icon
+enum NotificationType {
+  /// Green color scheme with checkmark icon
+  success,
+
+  /// Red color scheme with error icon
+  error,
+
+  /// Orange color scheme with warning icon
+  warning,
+
+  /// Blue color scheme with info icon
+  info
+}
 
 class _AnimatedNotificationState extends State<AnimatedNotification>
     with SingleTickerProviderStateMixin {
+  /// Controller for all animations
   late AnimationController _controller;
+
+  /// Controls the sliding entrance animation
   late Animation<Offset> _slideAnimation;
+
+  /// Controls the fade in/out animation
   late Animation<double> _fadeAnimation;
+
+  /// Controls the progress bar animation
   late Animation<double> _progressAnimation;
+
+  /// Controls the scale animation
   late Animation<double> _scaleAnimation;
+
+  /// Controls the icon rotation animation
   late Animation<double> _iconRotationAnimation;
 
   @override
@@ -249,19 +334,22 @@ class _AnimatedNotificationState extends State<AnimatedNotification>
   void initState() {
     super.initState();
 
+    // Initialize animation controller with longer duration for bounce effect
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 600), // Slightly longer for bounce
+      duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
+    // Configure slide animation with bounce effect
     _slideAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.5), // Start further up for bounce effect
+      begin: const Offset(0.0, -1.5),
       end: Offset.zero,
     ).animate(CurvedAnimation(
       parent: _controller,
-      curve: Curves.elasticOut, // Bounce effect
+      curve: Curves.elasticOut,
     ));
 
+    // Configure fade animation
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -269,6 +357,8 @@ class _AnimatedNotificationState extends State<AnimatedNotification>
       parent: _controller,
       curve: Curves.easeInOut,
     ));
+
+    // Configure scale animation with bounce effect
     _scaleAnimation = Tween<double>(
       begin: 0.5,
       end: 1.0,
@@ -277,6 +367,7 @@ class _AnimatedNotificationState extends State<AnimatedNotification>
       curve: Curves.easeOutBack,
     ));
 
+    // Configure progress bar animation
     _progressAnimation = Tween<double>(
       begin: 1.0,
       end: 0.0,
@@ -285,6 +376,7 @@ class _AnimatedNotificationState extends State<AnimatedNotification>
       curve: Curves.linear,
     ));
 
+    // Configure icon rotation animation
     _iconRotationAnimation = Tween<double>(
       begin: 0,
       end: 1,
@@ -293,8 +385,10 @@ class _AnimatedNotificationState extends State<AnimatedNotification>
       curve: Curves.easeOut,
     ));
 
+    // Start entrance animation
     _controller.forward();
 
+    // Configure auto-dismiss animation if duration is set
     if (widget.duration != Duration.zero) {
       _controller.animateTo(1.0, duration: widget.duration).whenComplete(() {
         if (mounted) {
@@ -306,12 +400,14 @@ class _AnimatedNotificationState extends State<AnimatedNotification>
     }
   }
 
+  /// Dismisses the notification if it's dismissible
   void _dismiss() {
     if (widget.dismissible) {
       _controller.reverse();
     }
   }
 
+  /// Returns the appropriate background color based on notification type
   Color _getBackgroundColor() {
     switch (widget.type) {
       case NotificationType.success:
@@ -325,6 +421,7 @@ class _AnimatedNotificationState extends State<AnimatedNotification>
     }
   }
 
+  /// Returns the appropriate icon based on notification type
   IconData _getDefaultIcon() {
     switch (widget.type) {
       case NotificationType.success:
